@@ -46,8 +46,8 @@ Les données sont des données qui proviennent de imdb, le dataset est disponibl
 ## Votre mission
 Le site a été bouchonné (cf `TODO`), vous devez effectuer les tâches suivantes :
 
-* [ ] Importer les données dans Neo4J à l'aide de l'outil d'import : [`ìmport-tool`](http://neo4j.com/docs/operations-manual/current/tutorial/import-tool/).
-* [ ] Implémenter l'Oracle de Bacon à l'aide de Neo4J dans la méthode `com.serli.oracle.of.bacon.repository.Neo4JRepository#getConnectionsToKevinBacon`
+* [x] Importer les données dans Neo4J à l'aide de l'outil d'import : [`ìmport-tool`](http://neo4j.com/docs/operations-manual/current/tutorial/import-tool/).
+* [X] Implémenter l'Oracle de Bacon à l'aide de Neo4J dans la méthode `com.serli.oracle.of.bacon.repository.Neo4JRepository#getConnectionsToKevinBacon`
 * [X] Implémenter la gestion du last 10 search à l'aide de Redis dans la méthode `com.serli.oracle.of.bacon.repository.RedisRepository#getLastTenSearches`
 * [X] Importer les données à l'aide de ElasticSearch dans `com.serli.oracle.of.bacon.loader.elasticsearch.CompletionLoader` (les liens suivants pourront vous aider : [search](https://www.elastic.co/guide/en/elasticsearch/reference/current/search.html), [mapping](https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping.html) et [suggest](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-suggesters.html))
 * [ ] Implémenter la suggestion sur le nom des acteurs dans `com.serli.oracle.of.bacon.repository.ElasticSearchRepository#getActorsSuggests`
@@ -63,3 +63,18 @@ La livraison de votre travail s'effectue à l'aide d'une pull-request sur le rep
 <span style="color:red; font-size: 2em;">
 **Vous devez commencer par forker le repository https://github.com/nosql-bootcamp/oracle-of-bacon**
 </span>
+
+## Mémo
+
+### Import des données
+
+Commande utilisée pour l'import : `neo4j-import --nodes:Actor actors.csv --nodes:Movie movies.csv --relationships roles.csv --into $NEO4J_HOME/data/databases/imdb.db`.
+Il faut penser à changer la BD utilisée dans la configuration de Neo4j (dans le fichier `$NEO4J_HOME/conf/neo4j.conf` : `dbms.active_database=imdb.db`).
+
+### Requête Neo4J
+
+```
+MATCH p = shortestPath((Kevin:Actor)-[*..10]-(Other:Actor {name: 'Aalto, Jaska'}))
+WHERE Kevin.name CONTAINS 'Kevin' AND Kevin.name CONTAINS 'Bacon'
+RETURN p
+```

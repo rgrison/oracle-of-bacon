@@ -9,6 +9,7 @@ import net.codestory.http.annotations.Get;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class APIEndPoint {
     private final Neo4JRepository neo4JRepository;
@@ -25,48 +26,15 @@ public class APIEndPoint {
 
     @Get("bacon-to?actor=:actorName")
     public String getConnectionsToKevinBacon(String actorName) {
-
-        redisRepository.saveSearch(actorName);
-
-        return "[\n" +
-                "{\n" +
-                "\"data\": {\n" +
-                "\"id\": 85449,\n" +
-                "\"type\": \"Actor\",\n" +
-                "\"value\": \"Bacon, Kevin (I)\"\n" +
-                "}\n" +
-                "},\n" +
-                "{\n" +
-                "\"data\": {\n" +
-                "\"id\": 2278636,\n" +
-                "\"type\": \"Movie\",\n" +
-                "\"value\": \"Mystic River (2003)\"\n" +
-                "}\n" +
-                "},\n" +
-                "{\n" +
-                "\"data\": {\n" +
-                "\"id\": 1394181,\n" +
-                "\"type\": \"Actor\",\n" +
-                "\"value\": \"Robbins, Tim (I)\"\n" +
-                "}\n" +
-                "},\n" +
-                "{\n" +
-                "\"data\": {\n" +
-                "\"id\": 579848,\n" +
-                "\"source\": 85449,\n" +
-                "\"target\": 2278636,\n" +
-                "\"value\": \"PLAYED_IN\"\n" +
-                "}\n" +
-                "},\n" +
-                "{\n" +
-                "\"data\": {\n" +
-                "\"id\": 9985692,\n" +
-                "\"source\": 1394181,\n" +
-                "\"target\": 2278636,\n" +
-                "\"value\": \"PLAYED_IN\"\n" +
-                "}\n" +
-                "}\n" +
-                "]";
+    	System.out.println("-----\nappel getConnectionsToKevinBacon...");
+    	List<Neo4JRepository.GraphItem> elementsGraphe = neo4JRepository.getConnectionsToKevinBacon(actorName);
+    	String elements = elementsGraphe.stream().map(element -> element.toString()).collect(Collectors.joining(", "));
+    	
+    	System.out.println("Retourne le resultat :");
+    	System.out.println(elements);
+    	
+    	System.out.println("-----");
+    	return "[" + elements + "]";
     }
 
     @Get("suggest?q=:searchQuery")
