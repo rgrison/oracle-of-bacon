@@ -6,6 +6,12 @@ sourceCompatibility='1.8'
 
 mainClassName = "com.serli.oracle.of.bacon.Application"
 
+task loadElastic(type: JavaExec) {
+    main = 'com.serli.oracle.of.bacon.loader.elasticsearch.CompletionLoader'
+    args '/home/augustin/Téléchargements/imdb-data/imdb-data/actors.csv'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
 repositories {
     jcenter()
 }
