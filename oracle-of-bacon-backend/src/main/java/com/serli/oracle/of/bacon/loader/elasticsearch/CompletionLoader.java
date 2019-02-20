@@ -52,31 +52,38 @@ public class CompletionLoader {
                     .forEach(line -> {
                         if(count.get() == 0) {
                             count.getAndIncrement();
+                            return;
                         } 
-                        else {
-                        	// pour la suggestion on indexe le nom et un champ name_suggest qui est un tableau
-                        	// contenant le nom de l'acteur brut et son nom dans l'autre sens
-                        	String[] input = line.split(",");
-                        	String suggestionArray = "[";
-                        	suggestionArray += "\"" + line.replace("\"", "") + "\"";
-                        	
-                        	if (input.length == 2) {
-                        		suggestionArray += ", \"" + input[1].replace("\"", "") + ", " + input[0].replace("\"", "") + "\"";
-                        	}
-                        	
-                        	suggestionArray += "]";
-                        	
-                            String jsonString = "{ \"name_suggest\": {\"input\": " + suggestionArray + " }, \"name\": \""+ line.replace("\"", "") + "\"}";
-                            request.add(
-                                new IndexRequest("actors")
-                                    .id(Integer.toString(count.getAndIncrement()))
-                                    .type("_doc")
-                                    .source(jsonString, XContentType.JSON)
-                            );
-                            if(count.get() % BULK_SIZE == 0) {
-                                doRequest();
-                            }
+                    	// pour la suggestion on indexe le nom et un champ name_suggest qui est un tableau
+                    	// avec 2 éléments : nom et prénom, prénom et nom. Cela permet une meilleure suggestion. 
+                    	String[] input = line.split(",");
+                    	StringBuilder suggestionArray = new StringBuilder("[");
+                    	suggestionArray.append("\"")
+                    	               .append(line.replace("\"", ""))
+                    	               .append("\"");
+                    	
+                    	if (input.length == 2) {
+                    		suggestionArray.append(", \"")
+                    		               .append(input[1].replace("\"", ""))
+                    		               .append(", ")
+                    		               .append(input[0].replace("\"", ""))
+                    		               .append("\"");
+                    	}
+                    	
+                    	suggestionArray.append("]");
+                    	
+                    	
+                        String jsonString = "{ \"name_suggest\": {\"input\": " + suggestionArray.toString() + " }, \"name\": \""+ line.replace("\"", "") + "\"}";
+                        request.add(
+                            new IndexRequest("actors")
+                                .id(Integer.toString(count.getAndIncrement()))
+                                .type("_doc")
+                                .source(jsonString, XContentType.JSON)
+                        );
+                        if(count.get() % BULK_SIZE == 0) {
+                            doRequest();
                         }
+                    
                     });
         }
 
