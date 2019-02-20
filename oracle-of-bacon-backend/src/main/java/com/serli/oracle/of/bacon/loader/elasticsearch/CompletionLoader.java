@@ -36,14 +36,14 @@ public class CompletionLoader {
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {
+    	if (args.length != 1) {
+    		System.err.println("Expecting 1 arguments, actual : " + args.length);
+    		System.err.println("Usage : completion-loader <actors file path>");
+    		System.exit(-1);
+    	}
+    	
         client = ElasticSearchRepository.createClient();
         request = new BulkRequest();
-
-        if (args.length != 1) {
-            System.err.println("Expecting 1 arguments, actual : " + args.length);
-            System.err.println("Usage : completion-loader <actors file path>");
-            System.exit(-1);
-        }
 
         String inputFilePath = args[0];
         try (BufferedReader bufferedReader = Files.newBufferedReader(Paths.get(inputFilePath))) {
@@ -54,8 +54,19 @@ public class CompletionLoader {
                             count.getAndIncrement();
                         } 
                         else {
-                            String jsonString = "{ \"name\": \"" + line.replace("\"", "") + "\" }";
-                            // System.out.println(jsonString);
+                        	// pour la suggestion on indexe le nom et un champ name_suggest qui est un tableau
+                        	// contenant le nom de l'acteur brut et son nom dans l'autre sens
+                        	String[] input = line.split(",");
+                        	String suggestionArray = "[";
+                        	suggestionArray += "\"" + line.replace("\"", "") + "\"";
+                        	
+                        	if (input.length == 2) {
+                        		suggestionArray += ", \"" + input[1].replace("\"", "") + ", " + input[0].replace("\"", "") + "\"";
+                        	}
+                        	
+                        	suggestionArray += "]";
+                        	
+                            String jsonString = "{ \"name_suggest\": {\"input\": " + suggestionArray + " }, \"name\": \""+ line.replace("\"", "") + "\"}";
                             request.add(
                                 new IndexRequest("actors")
                                     .id(Integer.toString(count.getAndIncrement()))

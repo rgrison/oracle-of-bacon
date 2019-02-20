@@ -78,3 +78,40 @@ MATCH p = shortestPath((Kevin:Actor)-[*..10]-(Other:Actor {name: 'Aalto, Jaska'}
 WHERE Kevin.name CONTAINS 'Kevin' AND Kevin.name CONTAINS 'Bacon'
 RETURN p
 ```
+
+### Création de l'index dans ElasticSearch pour la suggetion
+
+```
+PUT actors
+{
+  "mappings": {
+    "_doc": {
+      "properties": {
+        "name_suggest": {
+          "type": "completion"
+        },
+        "name": {
+          "type": "text"
+        }
+      }
+    }
+  }
+}
+```
+
+### Recherche de suggestion dans Elastic
+
+```
+GET actors/_search
+{
+  "suggest": {
+    "actors_completions": {
+      "prefix": "John",
+      "completion": {
+        "field": "name_suggest",
+        "size": 10
+      }
+    }
+  }
+}
+```
